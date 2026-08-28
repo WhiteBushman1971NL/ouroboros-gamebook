@@ -1,0 +1,932 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+</head>
+<body>
+<title>Ouroboros</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;1,400;1,500&family=Cormorant+Garamond:ital,wght@0,600;1,500&family=Cinzel:wght@600;700&family=Space+Mono:ital@0;1&display=swap" rel="stylesheet">
+
+<style>
+  :root{
+    --ink:     #1c1712;
+    --panel:   #24201a;
+    --line:    #4a4034;
+    --gold:    #c7a04a;
+    --paper:   #e9dfc8;
+    --muted:   #a99b7d;
+  }
+  @media (prefers-color-scheme: light){
+    :root:not([data-theme="dark"]){
+      --ink:     #ece2c9;
+      --panel:   #f4ead2;
+      --line:    #cdbd97;
+      --gold:    #8a6a1f;
+      --paper:   #2a2213;
+      --muted:   #6b5c3f;
+    }
+  }
+  :root[data-theme="light"]{
+    --ink:     #ece2c9;
+    --panel:   #f4ead2;
+    --line:    #cdbd97;
+    --gold:    #8a6a1f;
+    --paper:   #2a2213;
+    --muted:   #6b5c3f;
+  }
+
+  *{ box-sizing:border-box; }
+  html{ scroll-behavior:smooth; }
+  html,body{ margin:0; padding:0; }
+  body{
+    background: var(--ink);
+    color: var(--paper);
+    font-family: 'EB Garamond', Georgia, serif;
+    min-height: 100vh;
+    padding: clamp(24px, 6vw, 64px) 18px 48px;
+    display:flex;
+    flex-direction: column;
+    align-items:center;
+  }
+  a{ color: inherit; }
+
+  header{ text-align:center; max-width: 640px; margin-bottom: 8px; }
+  .eyebrow{
+    font-family:'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 0.95rem;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+    margin: 0 0 6px;
+  }
+  .rule{
+    width: 120px; height: 1px;
+    background: var(--line);
+    margin: 18px auto 34px;
+    position: relative;
+  }
+  .rule::before{
+    content: "❦";
+    position:absolute; left:50%; top:50%;
+    transform: translate(-50%,-50%);
+    background: var(--ink);
+    padding: 0 10px;
+    color: var(--gold);
+    font-size: 1rem;
+  }
+
+  .gallery{
+    display:flex;
+    flex-wrap: wrap;
+    justify-content:center;
+    gap: 34px;
+    width: 100%;
+    max-width: 1200px;
+  }
+  figure{
+    margin: 0;
+    width: min(540px, 100%);
+    background: var(--panel);
+    border: 1px solid var(--line);
+    padding: 14px;
+  }
+  figure svg{ display:block; width:100%; height:auto; }
+  figcaption{
+    text-align:center;
+    margin-top: 14px;
+    font-family:'Cormorant Garamond', serif;
+    font-style: italic;
+    color: var(--muted);
+    font-size: 1.02rem;
+  }
+  figcaption b{
+    display:block;
+    font-style: normal;
+    font-weight: 600;
+    color: var(--paper);
+    font-size: 1.15rem;
+    margin-bottom: 3px;
+  }
+
+  .dedication{
+    max-width: 620px;
+    width: 100%;
+    margin-top: 46px;
+    text-align: center;
+  }
+  .dedication .eyebrow{ margin-bottom: 14px; }
+  .dedication p{
+    font-family: 'EB Garamond', Georgia, serif;
+    font-style: italic;
+    font-size: 1.08rem;
+    line-height: 1.7;
+    color: var(--paper);
+    margin: 0 0 1.1em;
+  }
+  .dedication p:last-child{ margin-bottom:0; }
+
+  .controls{
+    margin-top: 40px;
+    display:flex; gap:28px; align-items:center; flex-wrap:wrap; justify-content:center;
+  }
+  button.ghost, a.ghost{
+    all:unset; cursor:pointer;
+    font-family:'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 0.9rem;
+    color: var(--muted);
+    border-bottom: 1px solid transparent;
+  }
+  button.ghost:hover, button.ghost:focus-visible,
+  a.ghost:hover, a.ghost:focus-visible{ color: var(--gold); border-color: var(--gold); }
+
+  .subtitle-line{
+    font-family:'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 1.05rem;
+    color: var(--muted);
+    margin: 0 0 4px;
+  }
+  h1.mainTitle{
+    font-family: 'Cinzel', 'Cormorant Garamond', serif;
+    font-weight: 700;
+    font-size: clamp(2.4rem, 8vw, 4rem);
+    letter-spacing: 0.08em;
+    margin: 4px 0 2px;
+    color: var(--gold);
+    text-wrap: balance;
+  }
+
+  /* — the story pages: same book, same tokens, no separate palette — */
+  #storySection{
+    width: 100%;
+    max-width: 640px;
+    margin-top: 60px;
+    padding-top: 46px;
+    border-top: 1px solid var(--line);
+  }
+
+  .folio{
+    display:flex;
+    justify-content:space-between;
+    align-items:baseline;
+    font-family:'Space Mono', ui-monospace, monospace;
+    font-variant-numeric: tabular-nums;
+    font-size: 0.78rem;
+    letter-spacing: 0.03em;
+    color: var(--muted);
+    border-bottom: 1px solid var(--line);
+    padding-bottom: 10px;
+    margin-bottom: 30px;
+  }
+  .folio .seen{
+    font-family:'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 0.85rem;
+    color: var(--gold);
+  }
+  .cast-line{
+    font-family:'Space Mono', ui-monospace, monospace;
+    font-size: 0.72rem;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    color: var(--muted);
+    text-align: center;
+    margin: -20px 0 28px;
+    opacity: 0.75;
+  }
+  .choice-turn{
+    margin-left: auto;
+    padding-left: 12px;
+    font-family:'Space Mono', ui-monospace, monospace;
+    font-variant-numeric: tabular-nums;
+    font-size: 0.78rem;
+    color: var(--muted);
+    flex: none;
+  }
+  .choice-link.visited{ color: var(--muted); }
+  .choice-link.visited .choice-icon{ color: var(--muted); opacity: 0.7; }
+  .choice-link.visited:hover, .choice-link.visited:focus-visible{ color: var(--gold); }
+
+  .page-eyebrow{
+    font-family:'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 0.85rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted);
+    text-align: center;
+    margin: 0 0 6px;
+  }
+  .page-title{
+    font-family:'Cormorant Garamond', serif;
+    font-weight: 600;
+    font-size: clamp(1.5rem, 4vw, 2.05rem);
+    color: var(--gold);
+    text-align: center;
+    margin: 0 0 30px;
+    text-wrap: balance;
+  }
+  .page-plate{
+    margin-bottom: 30px;
+    border: 1px solid var(--line);
+    background: var(--panel);
+    padding: 10px;
+  }
+  .page-plate svg{ display:block; width:100%; height:auto; }
+  .page-teaser{
+    font-style: italic;
+    color: var(--muted);
+    border-left: 2px solid var(--line);
+    padding-left: 18px;
+    margin-bottom: 6px;
+  }
+  .page-teaser p{ margin: 0 0 1em; }
+  .page-body p{ margin: 0 0 1.15em; line-height: 1.65; }
+  .page-body p:first-of-type::first-letter{
+    font-family:'Cormorant Garamond', serif;
+    font-size: 2.6rem;
+    float: left;
+    line-height: 0.82;
+    padding: 3px 8px 0 0;
+    color: var(--gold);
+  }
+  .page-body em{ font-style: italic; color: var(--gold); }
+  .page-whisper{
+    text-align: center;
+    font-style: italic;
+    color: var(--muted);
+    font-size: 0.96rem;
+    margin: 1.6em 0;
+  }
+
+  /* — the console strip: typed-prompt look, real links underneath — */
+  .console{
+    margin-top: 34px;
+    padding-top: 22px;
+    border-top: 1px solid var(--line);
+  }
+  .console-line{
+    font-family:'Space Mono', ui-monospace, monospace;
+    font-size: 0.92rem;
+    color: var(--muted);
+    text-align: center;
+    margin: 0 0 20px;
+    letter-spacing: 0.01em;
+  }
+  .console-line .caret{
+    color: var(--gold);
+    margin-right: 8px;
+  }
+  .console-line .cursor{
+    display:inline-block;
+    width: 0.5em;
+    border-bottom: 2px solid var(--gold);
+    margin-left: 6px;
+    animation: blink 1.1s steps(1) infinite;
+  }
+  @media (prefers-reduced-motion: reduce){ .console-line .cursor{ animation:none; opacity:.6; } }
+  @keyframes blink{ 50%{ opacity:0; } }
+
+  .choices{ list-style:none; margin:0; padding:0; }
+  .choice-link{
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    width: 100%;
+    text-decoration: none;
+    font-family: 'EB Garamond', Georgia, serif;
+    font-size: 1.05rem;
+    color: var(--paper);
+    padding: 13px 4px;
+    border-bottom: 1px solid var(--line);
+  }
+  .choices li:first-child .choice-link{ border-top: 1px solid var(--line); }
+  .choice-link:hover, .choice-link:focus-visible{ color: var(--gold); outline:none; }
+  .choice-link:hover .choice-icon, .choice-link:focus-visible .choice-icon{ color: var(--gold); border-color:var(--gold); }
+  .choice-icon{
+    flex: none;
+    width: 30px; height: 30px;
+    padding: 5px;
+    color: var(--muted);
+    border: 1px solid var(--line);
+    border-radius: 50%;
+  }
+  .choice-icon svg{ display:block; width:100%; height:100%; }
+  .choice-tag{
+    font-family:'Cormorant Garamond', serif;
+    font-style: italic;
+    color: var(--gold);
+    margin-right: 2px;
+  }
+
+  .end-mark{
+    text-align: center;
+    margin-top: 36px;
+    font-family:'Cormorant Garamond', serif;
+    font-style: italic;
+    color: var(--muted);
+    font-size: 0.95rem;
+  }
+  .end-mark .glyph{ color: var(--gold); display:block; font-size: 1.15rem; margin-bottom: 8px; }
+  .game-over-line{
+    text-align:center;
+    font-family:'Cormorant Garamond', serif;
+    font-weight: 600;
+    color: var(--gold);
+    font-size: 1.35rem;
+    letter-spacing: 0.04em;
+    margin-top: 1.6em;
+  }
+</style>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+<defs>
+  <symbol id="ic-feather" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M18 3c-6 0-13 5-13 15 4-1 7-3 9-6"/>
+    <path d="M5 18c3-6 7-9 13-15"/>
+    <path d="M9 14l3-3"/><path d="M12 11l3-3"/>
+  </symbol>
+  <symbol id="ic-scales" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M12 3v17"/><path d="M8 20h8"/><path d="M4 7h16"/>
+    <path d="M4 7l-2.5 5a2.5 2.5 0 0 0 5 0z"/>
+    <path d="M20 7l-2.5 5a2.5 2.5 0 0 0 5 0z"/>
+  </symbol>
+  <symbol id="ic-skull" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M12 3a7 7 0 0 0-7 7c0 3 1.5 4.6 2.3 6.2.4.8.7 1.3.7 2.3v1h8v-1c0-1 .3-1.5.7-2.3.8-1.6 2.3-3.2 2.3-6.2a7 7 0 0 0-7-7z"/>
+    <circle cx="9.3" cy="11" r="1.1" fill="currentColor" stroke="none"/>
+    <circle cx="14.7" cy="11" r="1.1" fill="currentColor" stroke="none"/>
+    <path d="M11 13l-.6 2h1.2z"/>
+    <path d="M9 17.5h6"/>
+  </symbol>
+  <symbol id="ic-shout" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M4 10v4h3l5 4V6L7 10z"/>
+    <path d="M16 9c1.2 1 1.2 5 0 6"/>
+    <path d="M19 7c2.2 2 2.2 8 0 10"/>
+  </symbol>
+  <symbol id="ic-footprint" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M13 21c-2.2 0-3-1.4-3-3.4 0-2.6 1.6-3.6 1.6-6.4 0-2-1-3-1-5.1A2.9 2.9 0 0 1 13.5 3 2.9 2.9 0 0 1 16 5.9c0 3-1.5 3.6-1.5 7 0 2.7 1.5 3.6 1.5 5.3 0 1.7-1 2.8-3 2.8z"/>
+    <circle cx="7.6" cy="9.4" r="1" fill="currentColor" stroke="none"/>
+    <circle cx="6.3" cy="12" r="1" fill="currentColor" stroke="none"/>
+    <circle cx="6" cy="14.8" r="1" fill="currentColor" stroke="none"/>
+  </symbol>
+  <symbol id="ic-egg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M12 21c-4 0-6.5-3.2-6.5-7.2C5.5 8.7 8.6 3 12 3s6.5 5.7 6.5 10.8c0 4-2.5 7.2-6.5 7.2z"/>
+    <path d="M9.5 10l1.6 2-1.2 1.6 1.8 2.2"/>
+  </symbol>
+  <symbol id="ic-lamp" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M3 13c0-3 2.3-5 6.5-5H14c2.8 0 4.5 1.6 4.5 3.4 0 1.5-1.1 2.6-2.7 2.6H9c-3.6 0-6-.5-6-1z"/>
+    <path d="M18.5 11.4c1.4-.2 2.5-.6 2.5-1.4s-1.4-1.4-3-1.4"/>
+    <path d="M9 8c0-2.2 1.3-3.6 1.3-5"/>
+    <path d="M7 16.5l1 2.5h4l1-2.5"/>
+  </symbol>
+  <symbol id="ic-trust" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M12 20s-7.5-4.6-7.5-10A4.3 4.3 0 0 1 12 7a4.3 4.3 0 0 1 7.5 3c0 5.4-7.5 10-7.5 10z"/>
+  </symbol>
+  <symbol id="ic-grab" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M8 21c-2 0-3-1.6-3.3-3.4L4 13.8c-.2-1 .5-1.8 1.3-1.6.7.2 1 .8 1.2 1.5"/>
+    <path d="M6.5 13.7V6.4a1.3 1.3 0 0 1 2.6 0v5.8"/>
+    <path d="M9.1 12V5a1.3 1.3 0 0 1 2.6 0v7"/>
+    <path d="M11.7 12V5.9a1.3 1.3 0 0 1 2.6 0V12"/>
+    <path d="M14.3 12.3v-4a1.3 1.3 0 0 1 2.6 0v9.4c0 2.4-1.5 4.3-4 4.3h-2"/>
+  </symbol>
+  <symbol id="ic-continue" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M4 12h15"/><path d="M13 6l6 6-6 6"/>
+  </symbol>
+  <symbol id="ic-loop" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M4 12a8 8 0 0 1 13.7-5.7L20 8"/>
+    <path d="M20 4v4h-4"/>
+    <path d="M20 12a8 8 0 0 1-13.7 5.7L4 16"/>
+    <path d="M4 20v-4h4"/>
+  </symbol>
+  <symbol id="ic-eye" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M2 12c2.5-4.5 6.5-7 10-7s7.5 2.5 10 7c-2.5 4.5-6.5 7-10 7s-7.5-2.5-10-7z"/>
+    <circle cx="12" cy="12" r="3"/>
+  </symbol>
+</defs>
+</svg>
+
+<header>
+  <p class="eyebrow">two plates, in the manner of the old editions</p>
+  <h1 class="mainTitle">OUROBOROS</h1>
+  <p class="subtitle-line">There and Back Again, and Again (or Not?)</p>
+  <p class="subtitle-line">a gamebook in two thousand, one hundred and sixty-six pages, turned one at a time</p>
+  <div class="rule"></div>
+</header>
+
+<div class="gallery">
+
+  <figure>
+    <svg viewBox="0 0 600 480" role="img">
+      <title>Another Day, Another Doorway</title>
+      <desc>A half-buried pyramid at the edge of a desert sandstorm at dusk, its dark triangular mouth open at the base, a camel sitting and a scorpion crossing the foreground sand.</desc>
+      <defs>
+        <linearGradient id="skyI" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#382a46"/>
+          <stop offset="42%" stop-color="#7a4a52"/>
+          <stop offset="75%" stop-color="#c97a4a"/>
+          <stop offset="100%" stop-color="#eab26a"/>
+        </linearGradient>
+      </defs>
+      <rect x="0" y="0" width="600" height="300" fill="url(#skyI)"/>
+      <circle cx="145" cy="250" r="44" fill="#f6cf82" opacity="0.92"/>
+      <path d="M600,50 C500,80 470,130 520,170 C560,200 590,190 600,220 Z" fill="#e8c98a" opacity="0.22"/>
+      <path d="M600,110 C480,145 420,175 460,225 C500,262 560,252 600,282 Z" fill="#e8c98a" opacity="0.3"/>
+      <path d="M0,270 C90,250 160,268 250,255 C340,242 400,262 480,250 C530,244 570,255 600,248 L600,300 L0,300 Z" fill="#a9754a"/>
+      <path d="M0,300 C100,278 200,300 300,285 C380,273 460,298 540,282 C560,278 580,283 600,280 L600,340 L0,340 Z" fill="#8f5f3a"/>
+      <path d="M170,340 L300,140 L430,340 Z" fill="#6b4a30" stroke="#4a3220" stroke-width="1.5"/>
+      <path d="M300,140 L365,340 L430,340 Z" fill="#573c26"/>
+      <g stroke="#4a3220" stroke-width="1" opacity="0.55">
+        <line x1="205" y1="300" x2="395" y2="300"/>
+        <line x1="225" y1="258" x2="375" y2="258"/>
+        <line x1="248" y1="216" x2="352" y2="216"/>
+        <line x1="272" y1="178" x2="328" y2="178"/>
+      </g>
+      <path d="M0,340 C80,312 160,336 240,322 C320,310 380,332 460,320 C520,312 560,323 600,317 L600,480 L0,480 Z" fill="#c9a266"/>
+      <path d="M140,340 C210,320 260,332 300,328 C340,332 390,320 460,340 L460,400 L140,400 Z" fill="#c9a266"/>
+      <path d="M272,340 L300,262 L328,340 Z" fill="#130c07"/>
+      <g fill="#3a2a1c" opacity="0.88">
+        <ellipse cx="520" cy="365" rx="42" ry="24"/>
+        <ellipse cx="503" cy="337" rx="19" ry="17"/>
+        <path d="M486,358 C472,352 458,340 452,322 C459,320 466,323 471,331 C479,344 488,352 495,360 Z"/>
+        <ellipse cx="447" cy="318" rx="10" ry="7"/>
+        <path d="M450,310 L454,300 L456,312 Z"/>
+        <path d="M492,382 C489,392 497,397 506,393 C509,386 502,381 492,382 Z"/>
+        <path d="M546,384 C543,394 551,399 560,395 C563,388 556,383 546,384 Z"/>
+      </g>
+      <path d="M561,358 C566,364 568,372 565,379" fill="none" stroke="#3a2a1c" stroke-width="2.5" stroke-linecap="round" opacity="0.88"/>
+      <g stroke="#2a1c12" stroke-width="1.6" fill="none" stroke-linecap="round" opacity="0.85">
+        <path d="M90,408 l-6,-5"/>
+        <path d="M98,408 l6,-5"/>
+        <path d="M87,414 l-8,0"/>
+        <path d="M103,414 l8,0"/>
+        <path d="M90,419 l-6,6"/>
+        <path d="M100,419 l6,6"/>
+        <path d="M86,408 c-5,-3 -9,-2 -11,2"/>
+        <path d="M86,417 c-5,2 -9,3 -11,7"/>
+      </g>
+      <ellipse cx="95" cy="413" rx="10" ry="5" fill="#2a1c12" opacity="0.85"/>
+      <path d="M104,411 C112,407 118,397 116,387 C115,381 110,379 107,383" fill="none" stroke="#2a1c12" stroke-width="2.2" stroke-linecap="round" opacity="0.85"/>
+      <circle cx="107" cy="382" r="1.8" fill="#2a1c12" opacity="0.85"/>
+      <g stroke="#2a1c12" stroke-width="1" opacity="0.5" fill="none">
+        <path d="M40,468 C62,458 92,466 114,456"/>
+        <path d="M470,478 C502,468 534,476 566,462"/>
+      </g>
+    </svg>
+    <figcaption><b>Plate I</b>the pyramid's mouth: another day, another doorway</figcaption>
+  </figure>
+
+  <figure>
+    <svg viewBox="0 0 600 480" role="img">
+      <title>The Door That Isn't Egyptian</title>
+      <desc>A torchlit sandstone wall carrying a mural of a seated, judging pharaoh, beside a darker, older-feeling door cut into the stone at an angle and carved with feathers, fangs, and an unfamiliar radiant sun.</desc>
+      <rect x="0" y="0" width="600" height="480" fill="#241c12"/>
+      <rect x="18" y="18" width="564" height="444" fill="#8a6a42" stroke="#4a3320" stroke-width="2"/>
+      <g stroke="#6b4f30" stroke-width="1" opacity="0.45">
+        <line x1="18" y1="170" x2="582" y2="170"/>
+        <line x1="18" y1="330" x2="582" y2="330"/>
+      </g>
+      <g fill="none" stroke="#c7a04a" stroke-width="1" opacity="0.55">
+        <rect x="38" y="52" width="152" height="378"/>
+      </g>
+      <g fill="#3a2c1a">
+        <path d="M72,392 L72,300 C72,280 87,270 102,270 L102,240 C102,224 114,214 124,214 C134,214 142,224 142,238 L142,270 C158,270 168,286 168,300 L168,392 Z"/>
+        <path d="M110,219 L114,192 L122,214 L130,188 L138,217 L129,240 L112,240 Z"/>
+        <line x1="163" y1="258" x2="163" y2="392" stroke="#3a2c1a" stroke-width="4"/>
+        <line x1="60" y1="286" x2="92" y2="286" stroke="#3a2c1a" stroke-width="2"/>
+        <circle cx="60" cy="294" r="7" fill="none" stroke="#3a2c1a" stroke-width="2"/>
+        <circle cx="92" cy="294" r="7" fill="none" stroke="#3a2c1a" stroke-width="2"/>
+        <line x1="76" y1="286" x2="76" y2="270" stroke="#3a2c1a" stroke-width="2"/>
+      </g>
+      <rect x="38" y="96" width="6" height="58" fill="#3a2c1a"/>
+      <path d="M41,96 C29,82 33,63 41,50 C49,63 53,82 41,96 Z" fill="#f4a23a"/>
+      <path d="M41,88 C35,79 37,68 41,60 C45,68 47,79 41,88 Z" fill="#fbe08a"/>
+      <g transform="rotate(-3 400 300)">
+        <path d="M292,140 C270,160 310,190 288,220 C266,250 306,280 284,310 C262,340 302,370 280,400" fill="none" stroke="#2f4a2a" stroke-width="10" stroke-linecap="round" opacity="0.9"/>
+        <g fill="#c9a04a" opacity="0.8">
+          <path d="M270,150 l-14,-6 l4,14 Z"/>
+          <path d="M274,190 l-14,-6 l4,14 Z"/>
+          <path d="M266,230 l-14,-6 l4,14 Z"/>
+          <path d="M270,270 l-14,-6 l4,14 Z"/>
+          <path d="M262,310 l-14,-6 l4,14 Z"/>
+        </g>
+        <path d="M280,400 C276,414 278,428 288,438 L268,442 C256,432 254,416 262,402 Z" fill="#2f4a2a" stroke="#0a1610" stroke-width="2"/>
+        <circle cx="272" cy="420" r="3" fill="#e8c05a"/>
+        <path d="M496,140 C518,160 478,190 500,220 C522,250 482,280 504,310 C526,340 486,370 508,400" fill="none" stroke="#2f4a2a" stroke-width="10" stroke-linecap="round" opacity="0.9"/>
+        <g fill="#c9a04a" opacity="0.8">
+          <path d="M518,150 l14,-6 l-4,14 Z"/>
+          <path d="M514,190 l14,-6 l-4,14 Z"/>
+          <path d="M522,230 l14,-6 l-4,14 Z"/>
+          <path d="M518,270 l14,-6 l-4,14 Z"/>
+          <path d="M526,310 l14,-6 l-4,14 Z"/>
+        </g>
+        <path d="M508,400 C512,414 510,428 500,438 L520,442 C532,432 534,416 526,402 Z" fill="#2f4a2a" stroke="#0a1610" stroke-width="2"/>
+        <circle cx="516" cy="420" r="3" fill="#e8c05a"/>
+        <rect x="292" y="128" width="204" height="326" rx="6" fill="#16241d" stroke="#0a1610" stroke-width="3"/>
+        <rect x="308" y="144" width="172" height="294" fill="#0d1712" stroke="#2f4a3a" stroke-width="1.5"/>
+        <g fill="#050d0a" stroke="#1a3428" stroke-width="1.5" opacity="0.9">
+          <path d="M340,438 L340,410 L448,410 L448,438 Z"/>
+          <path d="M352,410 L352,384 L436,384 L436,410 Z"/>
+          <path d="M364,384 L364,358 L424,358 L424,384 Z"/>
+          <path d="M376,358 L376,332 L412,332 L412,358 Z"/>
+          <rect x="386" y="316" width="16" height="16" fill="#0a1610"/>
+        </g>
+        <g stroke="#3fae86" stroke-width="2" fill="none" opacity="0.85">
+          <path d="M334,186 C323,197 323,213 336,220"/>
+          <path d="M334,202 C323,213 323,229 336,236"/>
+          <path d="M334,218 C323,229 323,245 336,252"/>
+          <path d="M466,186 C477,197 477,213 464,220"/>
+          <path d="M466,202 C477,213 477,229 464,236"/>
+          <path d="M466,218 C477,229 477,245 464,252"/>
+        </g>
+        <g fill="#c9a04a" opacity="0.92">
+          <path d="M364,318 L373,352 L382,318 Z"/>
+          <path d="M386,318 L395,356 L404,318 Z"/>
+          <path d="M408,318 L417,352 L426,318 Z"/>
+        </g>
+        <g fill="#e8c05a">
+          <circle cx="400" cy="240" r="17"/>
+          <path d="M400,196 L407,216 L400,211 L393,216 Z"/>
+          <path d="M444,240 L424,247 L428,240 L424,233 Z"/>
+          <path d="M400,284 L393,264 L400,269 L407,264 Z"/>
+          <path d="M356,240 L376,233 L372,240 L376,247 Z"/>
+          <path d="M431,209 L415,222 L419,213 L412,217 Z"/>
+          <path d="M431,271 L415,258 L419,267 L412,263 Z"/>
+          <path d="M369,209 L385,222 L381,213 L388,217 Z"/>
+          <path d="M369,271 L385,258 L381,267 L388,263 Z"/>
+        </g>
+      </g>
+      <rect x="536" y="96" width="6" height="58" fill="#3a2c1a"/>
+      <path d="M539,96 C527,82 531,63 539,50 C547,63 551,82 539,96 Z" fill="#f4a23a"/>
+      <path d="M539,88 C533,79 535,68 539,60 C543,68 545,79 539,88 Z" fill="#fbe08a"/>
+      <line x1="18" y1="450" x2="582" y2="450" stroke="#4a3320" stroke-width="2"/>
+    </svg>
+    <figcaption><b>Plate II</b>the door that isn't egyptian: feathers, fangs, and a sun shaped like no sun outside</figcaption>
+  </figure>
+
+</div>
+
+<div class="dedication">
+  <p class="eyebrow">dedication</p>
+  <p>This is for my cousin Gerrit — for the Apple II he built himself, and let me play games on it when I was a preteen, for Joust and Barbarian, and for a pyramid game I never finished. I never said thank you at the time. I'm saying it now — and for The Mask of the Sun, that pyramid game which never let that kid get past the early rooms, yet inspired the creation of this interactive book. Thank you, this late.</p>
+  <p>And to the one who invented this very way of telling a story in the first place — words that wait for a reader's hand before they'll turn the page — a true genius, ahead of his time. This book, static words made interactive by a smart pre-computer system, only exists because that idea did first.</p>
+</div>
+
+<div class="controls">
+  <button class="ghost" id="themeBtn" type="button">◐ candlelight / daylight</button>
+  <a class="ghost" href="#storySection">begin reading →</a>
+  <button class="ghost" id="restartBtn" type="button">↺ start over</button>
+</div>
+
+<div id="storySection"><div id="app"></div></div>
+
+<script>
+(function(){
+  var TOTAL_PAGES = 2166;
+
+  var PAGE_NO = {
+    title: 1, threshold: 89,
+    gauntlet: 156, gauntlet_examine: 162,
+    bridge: 287, bridge_examine: 293,
+    chamber_threshold: 402, chamber_examine: 408,
+    chamber: 512, wishes: 733,
+    climax_interfere: 1140, easy_correction: 1167, ending_good: 1201
+  };
+
+  var difficulty = null;
+  var visited = {};
+
+  function icon(id){ return '<span class="choice-icon"><svg><use href="#ic-' + id + '"/></svg></span>'; }
+
+  function diffFlavor(){
+    if (difficulty === 'easy') return 'The loop softens around you. Mistakes here get explained away.';
+    if (difficulty === 'nightmare') return 'The loop sharpens. Somewhere, something is now allowed to actually go wrong.';
+    return 'The loop holds its shape. No mercy, no cruelty either — just the story.';
+  }
+
+  var PYRAMID_DOOR_SVG = '<svg viewBox="0 0 600 480" role="img"><title>The Pyramid’s Mouth</title><desc>A close view of the pyramid’s dark triangular doorway cut into hieroglyph-carved sandstone, warm torchlight glowing from just inside the opening, two flanking torches, sand drifting across the threshold.</desc><defs><radialGradient id="doorGlow" cx="50%" cy="60%" r="55%"><stop offset="0%" stop-color="#e8a34a" stop-opacity="0.6"/><stop offset="55%" stop-color="#6b3a1e" stop-opacity="0.28"/><stop offset="100%" stop-color="#000000" stop-opacity="0"/></radialGradient></defs><rect x="0" y="0" width="600" height="480" fill="#5a4530"/><rect x="0" y="0" width="600" height="480" fill="#4a3a26" opacity="0.35"/><g stroke="#7a6142" stroke-width="1" opacity="0.3"><line x1="0" y1="120" x2="600" y2="120"/><line x1="0" y1="240" x2="600" y2="240"/><line x1="0" y1="360" x2="600" y2="360"/></g><circle cx="300" cy="300" r="190" fill="url(#doorGlow)"/><path d="M180,460 L300,80 L420,460 Z" fill="#0a0704"/><g fill="none" stroke="#3a2c1a" stroke-width="2" opacity="0.6"><path d="M170,460 L296,90"/><path d="M430,460 L304,90"/></g><g fill="#2a2014" opacity="0.7"><path d="M212,420 l16,-10 l-4,18 Z"/><path d="M234,358 l18,-8 l-6,18 Z"/><path d="M252,296 l16,-10 l-4,16 Z"/><path d="M368,420 l-16,-10 l4,18 Z"/><path d="M346,358 l-18,-8 l6,18 Z"/><path d="M328,296 l-16,-10 l4,16 Z"/></g><rect x="66" y="176" width="6" height="60" fill="#2a2018"/><path d="M69,176 C57,162 61,144 69,132 C77,144 81,162 69,176 Z" fill="#e8933a"/><path d="M69,168 C63,159 65,148 69,140 C73,148 75,159 69,168 Z" fill="#fbe08a"/><rect x="528" y="176" width="6" height="60" fill="#2a2018"/><path d="M531,176 C519,162 523,144 531,132 C539,144 543,162 531,176 Z" fill="#e8933a"/><path d="M531,168 C525,159 527,148 531,140 C535,148 537,159 531,168 Z" fill="#fbe08a"/><path d="M0,438 C100,426 200,446 300,434 C400,422 500,442 600,430 L600,480 L0,480 Z" fill="#8a6a42" opacity="0.85"/><g stroke="#5a4530" stroke-width="1.5" opacity="0.4" fill="none"><path d="M40,450 q30,-8 60,0"/><path d="M480,456 q30,-8 60,0"/></g><g stroke="#2a1c12" stroke-width="1.6" fill="none" stroke-linecap="round" opacity="0.85"><path d="M475,453 l-6,-5"/><path d="M483,453 l6,-5"/><path d="M472,459 l-8,0"/><path d="M488,459 l8,0"/><path d="M475,464 l-6,6"/><path d="M485,464 l6,6"/><path d="M471,453 c-5,-3 -9,-2 -11,2"/><path d="M471,462 c-5,2 -9,3 -11,7"/></g><ellipse cx="480" cy="458" rx="10" ry="5" fill="#2a1c12" opacity="0.85"/><path d="M489,456 C497,452 503,442 501,432 C500,426 495,424 492,428" fill="none" stroke="#2a1c12" stroke-width="2.2" stroke-linecap="round" opacity="0.85"/><circle cx="492" cy="427" r="1.8" fill="#2a1c12" opacity="0.85"/></svg>';
+
+  var GAUNTLET_SVG = '<svg viewBox="0 0 600 480" role="img"><title>A Gauntlet, Mishandled</title><desc>A torchlit sandstone corridor opening into a small treasury, gold coins scattered mid-spin across the floor and a collapsed pyramid of ceremonial urns in ruins.</desc><defs><linearGradient id="gaunt1" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#3a2c1a"/><stop offset="100%" stop-color="#191108"/></linearGradient></defs><rect x="0" y="0" width="600" height="480" fill="url(#gaunt1)"/><g stroke="#8a6a3a" stroke-width="1" opacity="0.5"><rect x="30" y="30" width="540" height="420" fill="none"/><rect x="60" y="60" width="480" height="360" fill="none"/></g><g fill="#c7a04a" opacity="0.35"><rect x="80" y="90" width="40" height="40"/><rect x="480" y="90" width="40" height="40"/><rect x="80" y="350" width="40" height="40"/><rect x="480" y="350" width="40" height="40"/></g><g fill="#2a1c10"><path d="M180,420 C220,400 260,415 300,405 C340,415 380,400 420,420 L420,460 L180,460 Z"/></g><g fill="#7a5a2a" opacity="0.9"><ellipse cx="230" cy="440" rx="42" ry="14"/><ellipse cx="340" cy="450" rx="36" ry="12"/><ellipse cx="290" cy="420" rx="30" ry="10"/></g><g fill="#f0c85a"><circle cx="210" cy="428" r="6"/><circle cx="252" cy="432" r="5"/><circle cx="300" cy="440" r="6"/><circle cx="330" cy="425" r="5"/><circle cx="360" cy="438" r="6"/><circle cx="270" cy="410" r="5"/><circle cx="392" cy="430" r="5"/></g><rect x="80" y="120" width="5" height="50" fill="#2a2018"/><path d="M82,120 C71,106 75,88 82,76 C89,88 93,106 82,120 Z" fill="#e8933a"/><rect x="515" y="120" width="5" height="50" fill="#2a2018"/><path d="M517,120 C506,106 510,88 517,76 C524,88 528,106 517,120 Z" fill="#e8933a"/><g fill="#c9a04a" opacity="0.4"><rect x="150" y="70" width="300" height="8"/></g></svg>';
+
+  var BRIDGE_SVG = '<svg viewBox="0 0 600 480" role="img"><title>Bridges Are a Construct</title><desc>A bottomless chasm spanned by a thin stone bridge with several center tiles missing, facing a torchlit wall carrying a mural of a stern, judging pharaoh.</desc><defs><radialGradient id="chasm1" cx="50%" cy="90%" r="80%"><stop offset="0%" stop-color="#241c12"/><stop offset="100%" stop-color="#050403"/></radialGradient></defs><rect x="0" y="0" width="600" height="480" fill="#1c1712"/><rect x="0" y="0" width="600" height="230" fill="#2c2216"/><g fill="#3a2c1a"><path d="M230,60 L230,210 L370,210 L370,60 C370,40 350,30 300,30 C250,30 230,40 230,60 Z"/></g><g fill="#1c140c"><path d="M255,70 C255,58 275,50 300,50 C325,50 345,58 345,70 L345,150 C345,165 325,175 300,175 C275,175 255,165 255,150 Z"/></g><path d="M280,95 L300,60 L320,95 L305,95 L305,175 L295,175 L295,95 Z" fill="#c9a04a" opacity="0.85"/><g stroke="#8a6a3a" stroke-width="1" opacity="0.4"><line x1="0" y1="90" x2="600" y2="90"/><line x1="0" y1="150" x2="600" y2="150"/></g><rect x="40" y="90" width="6" height="60" fill="#2a2018"/><path d="M43,90 C31,76 35,58 43,46 C51,58 55,76 43,90 Z" fill="#f4a23a"/><rect x="554" y="90" width="6" height="60" fill="#2a2018"/><path d="M557,90 C545,76 549,58 557,46 C565,58 569,76 557,90 Z" fill="#f4a23a"/><rect x="0" y="230" width="600" height="250" fill="url(#chasm1)"/><path d="M120,236 L120,244 L200,244 L200,236 Z M240,236 L240,244 L280,244 L280,236 Z M340,236 L340,244 L480,244 L480,236 Z" fill="#8a6a42"/><rect x="200" y="236" width="40" height="8" fill="none" stroke="#5a4a30" stroke-width="1" stroke-dasharray="3,3" opacity="0.6"/><rect x="280" y="236" width="60" height="8" fill="none" stroke="#5a4a30" stroke-width="1" stroke-dasharray="3,3" opacity="0.6"/></svg>';
+
+  var CHAMBER_SVG = '<svg viewBox="0 0 600 480" role="img"><title>The Chamber</title><desc>A small round, high-domed chamber, bare except for a single stone pedestal at its center, a squat brass oil lamp with a curved spout and looped handle resting on top.</desc><defs><radialGradient id="dome1" cx="50%" cy="0%" r="90%"><stop offset="0%" stop-color="#3a2c1a"/><stop offset="100%" stop-color="#171310"/></radialGradient></defs><rect x="0" y="0" width="600" height="480" fill="url(#dome1)"/><path d="M0,60 C120,-10 480,-10 600,60 L600,0 L0,0 Z" fill="#241c12"/><g stroke="#5a4530" stroke-width="1" opacity="0.4" fill="none"><path d="M50,55 C170,0 430,0 550,55"/><path d="M90,90 C200,45 400,45 510,90"/></g><rect x="0" y="380" width="600" height="100" fill="#100d0a"/><rect x="270" y="300" width="60" height="90" fill="#3a2c1a" stroke="#1c140c" stroke-width="2"/><ellipse cx="300" cy="300" rx="42" ry="12" fill="#4a3a24" stroke="#1c140c" stroke-width="2"/><ellipse cx="300" cy="388" rx="66" ry="16" fill="#241c12" stroke="#0f0b07" stroke-width="2"/><g><ellipse cx="300" cy="298" rx="26" ry="6" fill="#150e08" opacity="0.5"/><path d="M268,288 C268,274 280,265 300,265 C320,265 332,274 332,288 C332,300 320,308 300,308 C280,308 268,300 268,288 Z" fill="#3a2a16" stroke="#1c110a" stroke-width="1.5"/><path d="M268,284 C250,279 233,281 224,290 C231,295 246,295 258,290 Z" fill="#3a2a16" stroke="#1c110a" stroke-width="1.5"/><path d="M312,270 C320,260 332,261 334,270 C334,278 324,280 316,275" fill="none" stroke="#3a2a16" stroke-width="4" stroke-linecap="round"/><ellipse cx="300" cy="264" rx="9" ry="6" fill="#2a1c10" stroke="#1c110a" stroke-width="1.5"/><circle cx="300" cy="257" r="3" fill="#caa24a"/><path d="M282,278 C286,282 292,284 298,282" fill="none" stroke="#caa24a" stroke-width="1.5" stroke-linecap="round" opacity="0.7"/><circle cx="312" cy="296" r="2" fill="#150e08" opacity="0.6"/><circle cx="290" cy="300" r="1.6" fill="#150e08" opacity="0.5"/></g><rect x="60" y="140" width="5" height="40" fill="#2a2018"/><path d="M62,140 C53,128 56,112 62,102 C68,112 71,128 62,140 Z" fill="#e8933a"/><rect x="535" y="140" width="5" height="40" fill="#2a2018"/><path d="M537,140 C528,128 531,112 537,102 C543,112 546,128 537,140 Z" fill="#e8933a"/></svg>';
+
+  var CHAMBER_EGG_SVG = '<svg viewBox="0 0 600 480" role="img"><title>The Chamber, Cracked Open</title><desc>The same domed pedestal chamber, now with a towering, weary djinn of purple-grey smoke risen from the lamp, arms folded, and a section of floor beside the pedestal broken open to reveal a barrel-sized jade-grey egg, humming and hairline-cracked.</desc><defs><radialGradient id="dome2" cx="50%" cy="0%" r="90%"><stop offset="0%" stop-color="#3a2c1a"/><stop offset="100%" stop-color="#171310"/></radialGradient><radialGradient id="eggGlow3" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#8fe0c8" stop-opacity="0.35"/><stop offset="100%" stop-color="#8fe0c8" stop-opacity="0"/></radialGradient><linearGradient id="djinnFade" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#7a6290" stop-opacity="0.95"/><stop offset="100%" stop-color="#7a6290" stop-opacity="0"/></linearGradient></defs><rect x="0" y="0" width="600" height="480" fill="url(#dome2)"/><path d="M0,60 C120,-10 480,-10 600,60 L600,0 L0,0 Z" fill="#241c12"/><rect x="0" y="380" width="600" height="100" fill="#100d0a"/><rect x="270" y="300" width="60" height="90" fill="#3a2c1a" stroke="#1c140c" stroke-width="2"/><ellipse cx="300" cy="300" rx="42" ry="12" fill="#4a3a24" stroke="#1c140c" stroke-width="2"/><g><ellipse cx="300" cy="298" rx="26" ry="6" fill="#150e08" opacity="0.5"/><path d="M268,288 C268,274 280,265 300,265 C320,265 332,274 332,288 C332,300 320,308 300,308 C280,308 268,300 268,288 Z" fill="#3a2a16" stroke="#1c110a" stroke-width="1.5"/><path d="M268,284 C250,279 233,281 224,290 C231,295 246,295 258,290 Z" fill="#3a2a16" stroke="#1c110a" stroke-width="1.5"/><path d="M312,270 C320,260 332,261 334,270 C334,278 324,280 316,275" fill="none" stroke="#3a2a16" stroke-width="4" stroke-linecap="round"/><ellipse cx="300" cy="264" rx="9" ry="6" fill="#2a1c10" stroke="#1c110a" stroke-width="1.5"/><circle cx="300" cy="257" r="3" fill="#caa24a"/><path d="M282,278 C286,282 292,284 298,282" fill="none" stroke="#caa24a" stroke-width="1.5" stroke-linecap="round" opacity="0.7"/><circle cx="312" cy="296" r="2" fill="#150e08" opacity="0.6"/><circle cx="290" cy="300" r="1.6" fill="#150e08" opacity="0.5"/></g><g><path d="M250,250 C246,260 250,268 258,270 L342,270 C350,268 354,260 350,250 C332,260 268,260 250,250 Z" fill="url(#djinnFade)"/><path d="M264,206 C258,222 258,238 266,250 L334,250 C342,238 342,222 336,206 C320,218 280,218 264,206 Z" fill="#7a6290" stroke="#3a2c44" stroke-width="2.5" opacity="0.92"/><path d="M246,196 L276,214 L266,234 L234,214 Z" fill="#7a6290" stroke="#3a2c44" stroke-width="2.5" opacity="0.92"/><path d="M354,196 L324,214 L334,234 L366,214 Z" fill="#7a6290" stroke="#3a2c44" stroke-width="2.5" opacity="0.92"/><ellipse cx="300" cy="160" rx="32" ry="36" fill="#8a72a0" stroke="#3a2c44" stroke-width="2.5"/><path d="M272,150 C278,135 289,126 300,126 C311,126 322,135 328,150" fill="none" stroke="#241c2c" stroke-width="3" stroke-linecap="round"/><path d="M284,164 C288,167 293,167 297,165" fill="none" stroke="#241c2c" stroke-width="2.5" stroke-linecap="round"/><path d="M303,165 C307,167 312,167 316,164" fill="none" stroke="#241c2c" stroke-width="2.5" stroke-linecap="round"/><path d="M288,180 C294,183 306,183 312,180" fill="none" stroke="#241c2c" stroke-width="2.5" stroke-linecap="round"/><path d="M292,188 L308,188 L300,202 Z" fill="#5a4670" stroke="#3a2c44" stroke-width="1.5"/></g><ellipse cx="420" cy="400" rx="90" ry="26" fill="#0d0b08"/><ellipse cx="420" cy="446" rx="30" ry="10" fill="#1c1408" opacity="0.6"/><ellipse cx="420" cy="440" rx="76" ry="24" fill="#8a6a34" stroke="#5a4420" stroke-width="2"/><ellipse cx="420" cy="436" rx="60" ry="16" fill="#3a2c14"/><g stroke="#c9a04a" stroke-width="2" stroke-linecap="round" fill="none" opacity="0.85"><path d="M350,438 q10,-10 22,-6"/><path d="M358,448 q12,-6 24,-2"/><path d="M368,456 q14,-4 26,2"/><path d="M490,438 q-10,-10 -22,-6"/><path d="M482,448 q-12,-6 -24,-2"/><path d="M472,456 q-14,-4 -26,2"/><path d="M400,462 q10,6 20,4"/><path d="M420,464 q10,4 20,0"/><path d="M380,460 q8,6 18,6"/><path d="M460,460 q-8,6 -18,6"/></g><circle cx="420" cy="392" r="70" fill="url(#eggGlow3)"/><path d="M420,330 C398,332 384,354 382,380 C380,404 380,426 396,444 C406,455 413,460 420,460 C427,460 434,455 444,444 C460,426 460,404 458,380 C456,354 442,332 420,330 Z" fill="#7d8a72" stroke="#454f3e" stroke-width="2"/><g stroke="#333b2c" stroke-width="1.2" fill="none" opacity="0.8"><path d="M404,350 C409,362 400,372 406,384"/><path d="M436,354 C431,366 440,374 432,388"/></g><g stroke="#3fae86" stroke-width="1.5" fill="none" opacity="0.5"><path d="M420,430 m-50,0 a50,50 0 1,1 100,0 a38,38 0 1,1 -76,0"/></g><rect x="60" y="140" width="5" height="40" fill="#2a2018"/><path d="M62,140 C53,128 56,112 62,102 C68,112 71,128 62,140 Z" fill="#e8933a"/><rect x="535" y="140" width="5" height="40" fill="#2a2018"/><path d="M537,140 C528,128 531,112 537,102 C543,112 546,128 537,140 Z" fill="#e8933a"/></svg>';
+
+  var LAMP_CLOSEUP_SVG = '<svg viewBox="0 0 600 480" role="img"><title>The Lamp, Closer</title><desc>A close view of a squat brass oil lamp, tarnished near-black, with a curved spout, a looped handle, and a small lidded finial, resting on dark stone, faintly humming.</desc><defs><radialGradient id="lampHum" cx="50%" cy="50%" r="55%"><stop offset="0%" stop-color="#caa24a" stop-opacity="0.18"/><stop offset="100%" stop-color="#caa24a" stop-opacity="0"/></radialGradient></defs><rect x="0" y="0" width="600" height="480" fill="#171310"/><rect x="0" y="360" width="600" height="120" fill="#0d0a08"/><circle cx="300" cy="280" r="220" fill="url(#lampHum)"/><ellipse cx="300" cy="392" rx="150" ry="24" fill="#0a0704" opacity="0.7"/><path d="M100,266 C120,280 160,280 190,266 Z" fill="#2a1c10" stroke="#150e08" stroke-width="2"/><path d="M210,260 C210,220 250,195 300,195 C350,195 390,220 390,260 C390,296 350,320 300,320 C250,320 210,296 210,260 Z" fill="#3a2a16" stroke="#150e08" stroke-width="3"/><path d="M210,250 C165,238 125,242 100,266 C120,280 160,280 190,266 Z" fill="#3a2a16" stroke="#150e08" stroke-width="3"/><path d="M370,205 C392,180 425,182 430,205 C430,225 400,230 380,218" fill="none" stroke="#3a2a16" stroke-width="14" stroke-linecap="round"/><path d="M370,205 C392,180 425,182 430,205 C430,225 400,230 380,218" fill="none" stroke="#150e08" stroke-width="3" stroke-linecap="round"/><ellipse cx="300" cy="190" rx="26" ry="16" fill="#2a1c10" stroke="#150e08" stroke-width="3"/><circle cx="300" cy="166" r="8" fill="#caa24a"/><g fill="none" stroke="#caa24a" stroke-width="1.5" opacity="0.35"><path d="M240,240 C260,255 290,258 320,248"/><path d="M250,285 C275,296 310,296 335,282"/></g><g fill="#150e08" opacity="0.55"><circle cx="345" cy="235" r="4"/><circle cx="260" cy="300" r="3"/><circle cx="320" cy="300" r="3.5"/><circle cx="230" cy="230" r="2.6"/></g><path d="M235,225 C250,215 275,210 300,212" fill="none" stroke="#e8c47a" stroke-width="3" stroke-linecap="round" opacity="0.5"/></svg>';
+
+  var MURAL_CLOSEUP_SVG = '<svg viewBox="0 0 600 480" role="img"><title>Examine: The Mural</title><desc>A close view of the carved and painted mural: a stern, judging pharaoh in profile, striped headdress, false beard, one unblinking painted eye fixed on the viewer.</desc><rect x="0" y="0" width="600" height="480" fill="#241c12"/><rect x="20" y="20" width="560" height="440" fill="#6b4f30" stroke="#3a2c1a" stroke-width="3"/><g fill="none" stroke="#8a6a42" stroke-width="1" opacity="0.3"><rect x="40" y="40" width="520" height="400"/></g><g fill="#3a2c1a" opacity="0.55"><rect x="60" y="60" width="18" height="18"/><rect x="60" y="402" width="18" height="18"/><rect x="522" y="60" width="18" height="18"/><rect x="522" y="402" width="18" height="18"/></g><path d="M330,160 C360,180 366,230 350,280 L330,280 C338,220 330,180 310,160 Z" fill="#c9a04a"/><ellipse cx="300" cy="190" rx="34" ry="38" fill="#e8c05a"/><path d="M270,170 C250,200 246,250 262,290 L286,290 C276,240 278,195 296,168 Z" fill="#c9a04a"/><g stroke="#2a4a5a" stroke-width="4" opacity="0.8"><line x1="256" y1="195" x2="278" y2="195"/><line x1="252" y1="215" x2="274" y2="215"/><line x1="250" y1="235" x2="272" y2="235"/><line x1="250" y1="255" x2="272" y2="255"/><line x1="335" y1="195" x2="350" y2="200"/><line x1="338" y1="215" x2="354" y2="220"/><line x1="340" y1="235" x2="358" y2="240"/></g><path d="M270,168 C285,158 315,158 330,168" fill="none" stroke="#2a1c12" stroke-width="4"/><path d="M298,158 C300,148 308,144 314,150 C310,154 306,156 302,156" fill="#3fae86" stroke="#1c3a2c" stroke-width="1.5"/><path d="M312,192 C320,188 330,190 334,196 C330,200 320,201 312,198 Z" fill="#f6efd8" stroke="#1c1712" stroke-width="1.5"/><circle cx="326" cy="194" r="3" fill="#1c1712"/><path d="M334,195 C342,193 348,192 353,188" fill="none" stroke="#1c1712" stroke-width="2.5" stroke-linecap="round"/><path d="M310,184 C318,180 330,180 336,184" fill="none" stroke="#1c1712" stroke-width="2.5" stroke-linecap="round"/><path d="M330,200 C336,208 336,216 330,220" fill="none" stroke="#1c1712" stroke-width="2.5" stroke-linecap="round"/><path d="M316,224 C322,222 330,222 334,224" fill="none" stroke="#1c1712" stroke-width="2.5" stroke-linecap="round"/><path d="M318,228 L326,262 L336,228 Z" fill="#c9a04a" stroke="#1c1712" stroke-width="2"/><path d="M240,290 C260,278 340,278 362,290 L370,340 L232,340 Z" fill="#8a6a42"/><g stroke="#c9a04a" stroke-width="3" opacity="0.7"><path d="M250,300 C290,292 320,292 356,300"/><path d="M244,318 C288,308 322,308 360,318"/></g><g fill="#2a1c10" opacity="0.5"><rect x="90" y="120" width="16" height="16"/><rect x="90" y="150" width="16" height="16" transform="rotate(45 98 158)"/><rect x="90" y="340" width="16" height="16"/><circle cx="98" cy="220" r="8"/><rect x="470" y="120" width="16" height="16"/><rect x="470" y="150" width="16" height="16" transform="rotate(45 478 158)"/><rect x="470" y="340" width="16" height="16"/><circle cx="478" cy="220" r="8"/></g></svg>';
+
+  var GAUNTLET_CLOSEUP_SVG = '<svg viewBox="0 0 600 480" role="img"><title>Examine: The Corridor</title><desc>A close view of gold-leafed geometric mosaics and carved hieroglyphic warnings on the corridor wall, torchlight catching the gilding.</desc><rect x="0" y="0" width="600" height="480" fill="#241c12"/><rect x="30" y="30" width="540" height="420" fill="#3a2c1a" stroke="#191108" stroke-width="3"/><g fill="#c7a04a" opacity="0.9"><rect x="60" y="60" width="46" height="46"/><rect x="120" y="60" width="46" height="46"/><rect x="60" y="120" width="46" height="46"/><rect x="494" y="60" width="46" height="46"/><rect x="434" y="60" width="46" height="46"/><rect x="494" y="120" width="46" height="46"/></g><g fill="#191108"><rect x="76" y="76" width="14" height="14"/><rect x="136" y="76" width="14" height="14"/><rect x="76" y="136" width="14" height="14"/><rect x="510" y="76" width="14" height="14"/><rect x="450" y="76" width="14" height="14"/><rect x="510" y="136" width="14" height="14"/></g><g fill="none" stroke="#c7a04a" stroke-width="2" opacity="0.6"><rect x="50" y="200" width="500" height="220"/></g><g fill="#e8c47a"><circle cx="130" cy="260" r="16"/><path d="M122,290 L138,290 L134,320 L126,320 Z"/><path d="M112,300 L122,296 M148,300 L138,296" stroke="#e8c47a" stroke-width="5" stroke-linecap="round"/><path d="M118,330 L126,320 M142,330 L134,320" stroke="#e8c47a" stroke-width="5" stroke-linecap="round"/></g><path d="M96,240 L164,336" stroke="#8a2a1a" stroke-width="7" stroke-linecap="round" opacity="0.85"/><g fill="#e8c47a"><path d="M260,240 L300,240 L280,270 Z"/><rect x="272" y="270" width="16" height="50"/><path d="M264,282 L272,290 M296,282 L288,290" stroke="#e8c47a" stroke-width="5" stroke-linecap="round"/></g><g fill="#e8c47a"><ellipse cx="400" cy="290" rx="34" ry="14"/><path d="M370,290 C380,270 420,270 430,290" fill="none" stroke="#e8c47a" stroke-width="6"/><circle cx="390" cy="286" r="3" fill="#1c1712"/></g></svg>';
+
+  var CHAMBER_HATCH_SVG = '<svg viewBox="0 0 600 480" role="img"><title>Whatever That Was</title><desc>The same domed pedestal chamber, the djinn still risen above the pedestal, and the jade-grey egg now properly hatching — a jagged opening broken through the shell, warm light spilling out, small shell fragments fallen into the straw nest.</desc><defs><radialGradient id="dome3" cx="50%" cy="0%" r="90%"><stop offset="0%" stop-color="#3a2c1a"/><stop offset="100%" stop-color="#171310"/></radialGradient><linearGradient id="djinnFade2" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#7a6290" stop-opacity="0.95"/><stop offset="100%" stop-color="#7a6290" stop-opacity="0"/></linearGradient><radialGradient id="hatchGlow" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#ffdf9a" stop-opacity="0.95"/><stop offset="60%" stop-color="#ffdf9a" stop-opacity="0.3"/><stop offset="100%" stop-color="#ffdf9a" stop-opacity="0"/></radialGradient></defs><rect x="0" y="0" width="600" height="480" fill="url(#dome3)"/><path d="M0,60 C120,-10 480,-10 600,60 L600,0 L0,0 Z" fill="#241c12"/><rect x="0" y="380" width="600" height="100" fill="#100d0a"/><rect x="270" y="300" width="60" height="90" fill="#3a2c1a" stroke="#1c140c" stroke-width="2"/><ellipse cx="300" cy="300" rx="42" ry="12" fill="#4a3a24" stroke="#1c140c" stroke-width="2"/><g><ellipse cx="300" cy="298" rx="26" ry="6" fill="#150e08" opacity="0.5"/><path d="M268,288 C268,274 280,265 300,265 C320,265 332,274 332,288 C332,300 320,308 300,308 C280,308 268,300 268,288 Z" fill="#3a2a16" stroke="#1c110a" stroke-width="1.5"/><path d="M268,284 C250,279 233,281 224,290 C231,295 246,295 258,290 Z" fill="#3a2a16" stroke="#1c110a" stroke-width="1.5"/><path d="M312,270 C320,260 332,261 334,270 C334,278 324,280 316,275" fill="none" stroke="#3a2a16" stroke-width="4" stroke-linecap="round"/><ellipse cx="300" cy="264" rx="9" ry="6" fill="#2a1c10" stroke="#1c110a" stroke-width="1.5"/><circle cx="300" cy="257" r="3" fill="#caa24a"/><path d="M282,278 C286,282 292,284 298,282" fill="none" stroke="#caa24a" stroke-width="1.5" stroke-linecap="round" opacity="0.7"/><circle cx="312" cy="296" r="2" fill="#150e08" opacity="0.6"/><circle cx="290" cy="300" r="1.6" fill="#150e08" opacity="0.5"/></g><g><path d="M250,250 C246,260 250,268 258,270 L342,270 C350,268 354,260 350,250 C332,260 268,260 250,250 Z" fill="url(#djinnFade2)"/><path d="M264,206 C258,222 258,238 266,250 L334,250 C342,238 342,222 336,206 C320,218 280,218 264,206 Z" fill="#7a6290" stroke="#3a2c44" stroke-width="2.5" opacity="0.92"/><path d="M246,196 L276,214 L266,234 L234,214 Z" fill="#7a6290" stroke="#3a2c44" stroke-width="2.5" opacity="0.92"/><path d="M354,196 L324,214 L334,234 L366,214 Z" fill="#7a6290" stroke="#3a2c44" stroke-width="2.5" opacity="0.92"/><ellipse cx="300" cy="160" rx="32" ry="36" fill="#8a72a0" stroke="#3a2c44" stroke-width="2.5"/><path d="M272,150 C278,135 289,126 300,126 C311,126 322,135 328,150" fill="none" stroke="#241c2c" stroke-width="3" stroke-linecap="round"/><path d="M284,164 C288,167 293,167 297,165" fill="none" stroke="#241c2c" stroke-width="2.5" stroke-linecap="round"/><path d="M303,165 C307,167 312,167 316,164" fill="none" stroke="#241c2c" stroke-width="2.5" stroke-linecap="round"/><path d="M288,180 C294,183 306,183 312,180" fill="none" stroke="#241c2c" stroke-width="2.5" stroke-linecap="round"/><path d="M292,188 L308,188 L300,202 Z" fill="#5a4670" stroke="#3a2c44" stroke-width="1.5"/></g><ellipse cx="420" cy="400" rx="90" ry="26" fill="#0d0b08"/><ellipse cx="420" cy="446" rx="30" ry="10" fill="#1c1408" opacity="0.6"/><ellipse cx="420" cy="440" rx="76" ry="24" fill="#8a6a34" stroke="#5a4420" stroke-width="2"/><ellipse cx="420" cy="436" rx="60" ry="16" fill="#3a2c14"/><g stroke="#c9a04a" stroke-width="2" stroke-linecap="round" fill="none" opacity="0.85"><path d="M350,438 q10,-10 22,-6"/><path d="M358,448 q12,-6 24,-2"/><path d="M368,456 q14,-4 26,2"/><path d="M490,438 q-10,-10 -22,-6"/><path d="M482,448 q-12,-6 -24,-2"/><path d="M472,456 q-14,-4 -26,2"/><path d="M400,462 q10,6 20,4"/><path d="M420,464 q10,4 20,0"/><path d="M380,460 q8,6 18,6"/><path d="M460,460 q-8,6 -18,6"/></g><circle cx="418" cy="372" r="60" fill="url(#hatchGlow)"/><path d="M420,330 C398,332 384,354 382,380 C380,404 380,426 396,444 C406,455 413,460 420,460 C427,460 434,455 444,444 C460,426 460,404 458,380 C456,354 442,332 420,330 Z" fill="#7d8a72" stroke="#454f3e" stroke-width="2"/><path d="M404,352 L418,348 L426,360 L438,356 L442,372 L430,380 L434,394 L418,390 L410,400 L400,388 L406,372 Z" fill="#ffdf9a" stroke="#2a2418" stroke-width="2" opacity="0.95"/><path d="M392,420 L404,414 L400,428 Z" fill="#7d8a72" stroke="#454f3e" stroke-width="1.5"/><path d="M444,404 L456,410 L446,420 Z" fill="#7d8a72" stroke="#454f3e" stroke-width="1.5"/><g stroke="#3fae86" stroke-width="1.5" fill="none" opacity="0.5"><path d="M420,430 m-50,0 a50,50 0 1,1 100,0 a38,38 0 1,1 -76,0"/></g><rect x="60" y="140" width="5" height="40" fill="#2a2018"/><path d="M62,140 C53,128 56,112 62,102 C68,112 71,128 62,140 Z" fill="#e8933a"/><rect x="535" y="140" width="5" height="40" fill="#2a2018"/><path d="M537,140 C528,128 531,112 537,102 C543,112 546,128 537,140 Z" fill="#e8933a"/></svg>';
+
+  var FORBIDDEN_SVG = '<svg viewBox="0 0 600 480" role="img"><title>You Should Have Let Joppie Choose</title><desc>A large forbidden sign, a circle crossed by a diagonal slash, rendered in warm earth tones, with a small reaching-hand silhouette inside.</desc><rect x="0" y="0" width="600" height="480" fill="#171310"/><ellipse cx="300" cy="420" rx="220" ry="18" fill="#0d0a08" opacity="0.6"/><circle cx="300" cy="230" r="150" fill="none" stroke="#8a5a34" stroke-width="26"/><line x1="196" y1="126" x2="404" y2="334" stroke="#8a5a34" stroke-width="26" stroke-linecap="round"/><g fill="#c9a04a" opacity="0.9"><path d="M290,290 C286,270 288,250 296,236 C298,246 302,252 306,250 C304,238 306,224 312,214 C316,224 316,236 318,246 C324,238 326,226 324,214 C330,222 332,236 328,248 C334,244 338,234 338,224 C342,234 340,248 332,258 C322,278 306,290 290,290 Z"/></g></svg>';
+
+  var CAST = {
+    title: 'White Bushman · Joppie', threshold: 'White Bushman · Joppie',
+    gauntlet: 'White Bushman · Joppie', gauntlet_examine: 'White Bushman · Joppie',
+    bridge: 'White Bushman · Joppie', bridge_examine: 'White Bushman · Joppie',
+    chamber_threshold: 'White Bushman · Joppie', chamber_examine: 'White Bushman · Joppie',
+    chamber: 'White Bushman · Joppie', wishes: 'White Bushman · Joppie · The Djinn',
+    climax_interfere: 'White Bushman · Joppie · The Djinn', easy_correction: 'White Bushman · Joppie · The Djinn',
+    ending_good: 'White Bushman · Joppie · The Djinn'
+  };
+
+  function folio(id){
+    var seenNote = visited[id] ? '<span class="seen">— you have turned to this page before</span>' : '<span></span>';
+    return '<div class="folio"><span>Page ' + PAGE_NO[id] + ' of ' + TOTAL_PAGES.toLocaleString() + '</span>' + seenNote + '</div>'
+      + '<p class="cast-line">Present — ' + CAST[id] + '</p>';
+  }
+
+  function consolePrompt(hint, items){
+    var lis = items.map(function(it){
+      var cls = 'choice-link' + (visited[it.to] ? ' visited' : '');
+      return '<li><a class="' + cls + '" href="#' + it.to + '"' + (it.action ? ' onclick="oroAct(\'' + it.action + '\')"' : '') + '>'
+        + icon(it.icon) + '<span>' + (it.tag ? '<span class="choice-tag">' + it.tag + '</span>' : '') + it.label + '</span>'
+        + '<span class="choice-turn">p.' + PAGE_NO[it.to] + '</span></a></li>';
+    }).join('');
+    return '<div class="console">'
+      + '<p class="console-line"><span class="caret">»</span>' + hint + '<span class="cursor"></span></p>'
+      + '<ul class="choices">' + lis + '</ul>'
+      + '</div>';
+  }
+
+  function restartLink(hint){
+    return consolePrompt(hint, [{to:'title', action:'restart', icon:'loop', label:'↺ Start over, from the top.'}]);
+  }
+
+  var scenes = {
+
+    title: function(){ return folio('title')
+      + '<p class="page-eyebrow">Encore, continued</p>'
+      + '<h2 class="page-title">Another Day, Another Doorway</h2>'
+      + '<div class="page-plate">' + PYRAMID_DOOR_SVG + '</div>'
+      + '<div class="page-body">'
+      + '<p>The desert did not want White Bushman there — three-day trek of a sandstorm that personally sought him out, a scorpion that bit specifically his left boot, a camel that sat down and refused to move for six hours.</p>'
+      + '<p>White Bushman — white dreadlocks bound back under a battered wide-brimmed hat, blue eyes doing their best impression of steely resolve, a whip coiled on each hip ("one whip is for cowards") — stands at the mouth of a half-buried pyramid:</p>'
+      + '<p>"Another day, another doorway humanity was never meant to open. Let’s open it."</p>'
+      + '<p>At his heel, Joppie — small, pink, mohawked, earrings catching the light, pacifier already back in place, diaper clean again, tiny fedora sitting jauntily crooked, none the worse for eleven seconds ago — gives an encouraging squeal and trots past him into the dark.</p>'
+      + '<p>"Joppie! We discussed this—"</p>'
+      + '<p>Somewhere, unseen, unheard, ten feet of purple smoke sighs the oldest sigh in the universe, curls back down into a squat brass lamp on a pedestal in the deepest chamber, and settles in to wait.</p>'
+      + '<p class="page-whisper"><em>Eleven seconds.</em></p>'
+      + '<p class="page-whisper"><em>Well. We all know how this will (not) end.</em></p>'
+      + '<p class="page-whisper">— THE NEVER ENDING STORY —<br><em>(again: not THAT one. White Bushman checked. Several times. He tripped on all of them. Joppie did not.)</em></p>'
+      + '<p>Except this time, the smoke doesn’t settle all the way down. This is loop forty-seven, though neither of them knows it yet — and for the first time in forty-six loops, Joppie is about to do something he’s never done before.</p>'
+      + '</div>'
+      + consolePrompt('what now?', [
+          {to:'threshold', icon:'shout', label:'"Joppie! We discussed this—" — call him back before he vanishes alone.'},
+          {to:'threshold', icon:'footprint', label:'Say nothing. Let him go. He always finds the interesting rooms first.'}
+        ]);
+    },
+
+    threshold: function(){ return folio('threshold')
+      + '<p class="page-eyebrow">Loop Forty-Seven</p>'
+      + '<h2 class="page-title">The Pyramid’s Mouth</h2>'
+      + '<div class="page-plate">' + PYRAMID_DOOR_SVG + '</div>'
+      + '<div class="page-teaser">'
+      + '<p>White Bushman has opened forty-six of these doorways. He remembers none of them — three wishes burned every time, the last one always <em>"I wish everything was like before I got here,"</em> and eleven seconds later, a new doorway, same man, empty memory.</p>'
+      + '<p>Joppie remembers all forty-six. He has never once told White Bushman that.</p>'
+      + '</div>'
+      + consolePrompt('how badly do you want to escape? choose your path', [
+          {to:'gauntlet', action:'easy', icon:'feather', label:'Easy — the loop is forgiving.'},
+          {to:'gauntlet', action:'normal', icon:'scales', label:'Normal — read it the way it was meant to be read.'},
+          {to:'gauntlet', action:'nightmare', icon:'skull', label:'Nightmare — some choices here are simply wrong.'}
+        ]);
+    },
+
+    gauntlet: function(){ return folio('gauntlet')
+      + '<p class="page-eyebrow">A Gauntlet, Mishandled</p>'
+      + '<h2 class="page-title">The First Corridor</h2>'
+      + '<div class="page-plate">' + GAUNTLET_SVG + '</div>'
+      + '<div class="page-body">'
+      + (visited['gauntlet']
+        ? '<p>The corridor looks exactly as they left it — forty stone darts still lodged in the far wall, a scatter of gold coins that never quite found their way back into an urn. White Bushman gives both whips a wary look and, this time, keeps them very deliberately apart.</p>'
+          + '<p>Joppie trots past the wreckage of his own treasury heist without so much as a backward glance, entirely unbothered by round two.</p>'
+        : '<p>White Bushman drew both whips with a flourish that would have looked extremely cool if he hadn’t immediately tangled them with each other, the crack-crack-CRACK of expert dual-wielding coming out instead as a single confused <em>floomp</em> as twelve feet of braided leather knotted itself around both his wrists.</p>'
+          + '<p>"That’s — that’s a warm-up," he informed the empty corridor, wrestling one whip free just as his boot found the pressure plate hidden beneath a suspiciously clean floor tile. <em>Click.</em> Forty stone darts fired from the ceiling in a wide, sweeping volley — and caught nobody, because White Bushman, mid-whip-wrestle, had already toppled sideways into the wall.</p>'
+          + '<p>Somewhere ahead, muffled by several tons of ancient stone, came the unmistakable sound of a very small, very determined animal discovering a room full of things that jingled. By the time he caught up, the treasury chamber looked like it had been hit by a very small, very enthusiastic tornado — which, technically, it had. Gold coins still spinning to a stop, a collapsed pyramid of ceremonial urns in ruins, and at the center of it, entirely unbothered, Joppie — one coin balanced on his snout, looking extremely pleased with himself.</p>'
+          + '<p>"You," White Bushman said, pointing a finger that was not entirely steady, "are a menace and a delight in equal measure. We’re going to need that coin back later."</p>')
+      + '</div>'
+      + consolePrompt('where to?', [
+          {to:'gauntlet_examine', icon:'eye', label:'Examine the corridor walls before moving on.'},
+          {to:'bridge', icon:'continue', label:'Head deeper, toward the chasm and the bridge.'},
+          {to:'chamber_threshold', icon:'lamp', label:'Push straight on, toward the domed chamber ahead.'}
+        ]);
+    },
+
+    gauntlet_examine: function(){ return folio('gauntlet_examine')
+      + '<p class="page-eyebrow">A Gauntlet, Mishandled</p>'
+      + '<h2 class="page-title">Examine: The Corridor</h2>'
+      + '<div class="page-plate">' + GAUNTLET_CLOSEUP_SVG + '</div>'
+      + '<div class="page-teaser">'
+      + '<p>The first corridor is beautiful in the specific way that things designed to kill you are often beautiful — geometric mosaics, gold leaf still catching the torchlight after four thousand years, hieroglyphic warnings that translate, more or less, to <em>turn around, you absolute muppet.</em></p>'
+      + '<p>White Bushman does not turn around. He never does.</p>'
+      + '</div>'
+      + consolePrompt('nothing more to see here', [
+          {to:'gauntlet', icon:'footprint', label:'Return to the corridor.'}
+        ]);
+    },
+
+    bridge: function(){ return folio('bridge')
+      + '<p class="page-eyebrow">Bridges Are a Construct</p>'
+      + '<h2 class="page-title">The Chasm</h2>'
+      + '<div class="page-plate">' + BRIDGE_SVG + '</div>'
+      + '<div class="page-body">'
+      + (visited['bridge']
+        ? '<p>The chasm hasn’t gotten any friendlier the second time around, but White Bushman has, at least, learned the one lesson that matters: don’t look down. He crosses fast and flat-footed, eyes fixed dead ahead, and doesn’t so much as glance at the drop.</p>'
+          + '<p>Joppie is already waiting on the far side again, looking faintly disappointed that nothing exciting happened this time.</p>'
+        : '<p>The chasm is the kind of chasm that exists specifically to be dramatic — no visible bottom, a thin stone bridge spanning it with several of its center tiles conspicuously, suspiciously missing.</p>'
+          + '<p>"I’ve seen this in a movie," White Bushman announces, testing the first tile with the tip of one whip before stepping onto it. "You just don’t look down, and you—"</p>'
+          + '<p>He looks down.</p>'
+          + '<p>"—don’t look down," he repeats, now looking directly down, into several hundred feet of nothing, at which point his body, entirely reasonably, decides that continuing to stand up is no longer a priority. He sits down hard on the bridge tile, which reveals itself as pressure-sensitive, not missing — calibrated for a grown man’s weight, not a piglet’s — and drops six inches with a grinding stone shriek before catching on some ancient counterweight and holding, wobbling, both of them still alive by a margin that barely qualifies as one.</p>'
+          + '<p>Joppie, who weighed roughly as much as the fedora he was wearing plus a modest snack, had simply trotted across the exact same tiles without incident twenty seconds earlier, and now looks back from the far side with concern tinged with judgment tinged with the specific smugness of a small creature whose low mass just saved his own life without him even noticing.</p>'
+          + '<p>"I meant to do that," White Bushman says, flat on his stomach, both arms and legs spread wide across the tile. "Structural integrity test. Passed. Barely. Moving on."</p>')
+      + '</div>'
+      + consolePrompt('where to?', [
+          {to:'bridge_examine', icon:'eye', label:'Examine the mural on the far wall.'},
+          {to:'gauntlet', icon:'footprint', label:'Go back toward the first corridor.'},
+          {to:'chamber_threshold', icon:'lamp', label:'Cross on, toward the domed chamber ahead.'}
+        ]);
+    },
+
+    bridge_examine: function(){ return folio('bridge_examine')
+      + '<p class="page-eyebrow">Bridges Are a Construct</p>'
+      + '<h2 class="page-title">Examine: The Mural</h2>'
+      + '<div class="page-plate">' + MURAL_CLOSEUP_SVG + '</div>'
+      + '<div class="page-teaser">'
+      + '<p>Spanning the far wall: a mural of a stern-faced pharaoh who appears to be personally judging anyone who attempts the crossing. It judges White Bushman the entire way across, and does not stop once he’s made it.</p>'
+      + '<p>Up close, the painted eye turns out to be the genuine article — four thousand years of professional disapproval, still fully staffed, no lunch breaks.</p>'
+      + '</div>'
+      + consolePrompt('nothing more to see here', [
+          {to:'bridge', icon:'footprint', label:'Return to the bridge.'}
+        ]);
+    },
+
+    chamber_threshold: function(){ return folio('chamber_threshold')
+      + '<p class="page-eyebrow">The Chamber</p>'
+      + '<h2 class="page-title">A Small, High-Domed Room</h2>'
+      + '<div class="page-plate">' + CHAMBER_SVG + '</div>'
+      + '<div class="page-body">'
+      + (visited['chamber_threshold']
+        ? '<p>The lamp is exactly where they left it — squat, brass, still humming its low, patient hum, entirely unconcerned with being looked at twice.</p>'
+          + '<p>White Bushman doesn’t say "Jackpot" again. He didn’t need to, the first time either.</p>'
+        : '<p>A hallway of sarcophagi that White Bushman successfully does not disturb leads at last into a small round chamber, high-domed, entirely bare except for a single stone pedestal at its center.</p>'
+          + '<p>And on the pedestal: an oil lamp. Squat, brass, tarnished near-black, humming very faintly with the specific kind of low reality-bending hum that any sensible person would immediately recognize as <em>do not touch.</em></p>'
+          + '<p>"Jackpot," White Bushman breathes.</p>')
+      + '</div>'
+      + consolePrompt('where to?', [
+          {to:'chamber_examine', icon:'eye', label:'Examine the lamp more closely, without touching it.'},
+          {to:'bridge', icon:'footprint', label:'Step back toward the bridge.'},
+          {to:'gauntlet', icon:'footprint', label:'Step back toward the first corridor.'},
+          {to:'chamber', icon:'grab', label:'Reach for the lamp.'}
+        ]);
+    },
+
+    chamber_examine: function(){ return folio('chamber_examine')
+      + '<p class="page-eyebrow">The Chamber</p>'
+      + '<h2 class="page-title">Examine: The Lamp</h2>'
+      + '<div class="page-plate">' + LAMP_CLOSEUP_SVG + '</div>'
+      + '<div class="page-teaser">'
+      + '<p>Squat, brass, tarnished near-black — up close the hum isn’t really a sound at all, more a pressure behind the teeth, the particular hum of something that has been waiting a very long time to be picked up by exactly the wrong person.</p>'
+      + '<p>There is no polite way to describe a lamp that appears to be holding its breath.</p>'
+      + '</div>'
+      + consolePrompt('nothing more to see here', [
+          {to:'chamber_threshold', icon:'footprint', label:'Step back from the pedestal.'}
+        ]);
+    },
+
+    chamber: function(){ return folio('chamber')
+      + '<p class="page-eyebrow">The Chamber</p>'
+      + '<h2 class="page-title">Jackpot</h2>'
+      + '<div class="page-plate">' + CHAMBER_SVG + '</div>'
+      + '<div class="page-body">'
+      + '<p>He does not make it three steps.</p>'
+      + '<p>Joppie — small enough to move at ankle-level entirely unnoticed, sensing with the infallible instinct of a piglet who has caused eleven prior catastrophes on this trip alone that a twelfth was imminently due — chooses that precise moment to dart directly between White Bushman’s ankles at full speed, chasing what may or may not have been a scarab beetle, and White Bushman’s own feet, doing what his feet did best, immediately betray him completely.</p>'
+      + '<p>He goes down in a full cartwheeling tangle of dreadlocks, whip-leather, and startled yelling, arms flailing for anything solid, and one hand — entirely by accident, entirely without his input or consent — closes around the lamp on the pedestal as he falls past it, yanking it down with him.</p>'
+      + '<p>He hits the floor. The lamp hits the floor. The lamp <em>rolls,</em> scraping hard across the ancient stone, and strikes the far wall with a resonant <em>bonggg.</em></p>'
+      + '<p>Purple-grey smoke pours from the spout, rising, thickening, coiling upward into ten feet of djinn with the deeply unimpressed expression of a being who has done this several thousand times and stopped being surprised by anything — except this exact djinn has never once, in forty-six loops, met White Bushman for the first time twice in the same temple, and something in his ancient, weary posture flickers, just slightly, with recognition he has no right to.</p>'
+      + '<p>"THREE WISHES," the djinn announces, in a voice like a landslide, "SHALL BE GRANTED TO THE ONE WHO—"</p>'
+      + '</div>'
+      + consolePrompt('the wishes begin', [
+          {to:'wishes', icon:'continue', label:'Continue.'}
+        ]);
+    },
+
+    wishes: function(){ return folio('wishes')
+      + '<p class="page-eyebrow">The Chamber</p>'
+      + '<h2 class="page-title">Two, Already</h2>'
+      + '<div class="page-plate">' + CHAMBER_EGG_SVG + '</div>'
+      + '<div class="page-body">'
+      + '<p>"—GET THE WHIP OFF MY NECK, JOPPIE, I WILL GIVE YOU THE ENTIRE TREASURY—" White Bushman continues, entirely over the djinn, thrashing, one whip wrapped fully around his own throat from the fall. "—I WISH this stupid whip would just LET GO OF ME—"</p>'
+      + '<p>The djinn, who takes his job extremely literally, snaps one enormous finger. The whip lets go — all at once, both ends simultaneously — and springs outward with its full stored tension, catching a ceremonial urn and sending pottery shards raining down onto White Bushman’s upturned, dust-caked face.</p>'
+      + '<p>"That was your first wish," the djinn says, flatly. "Two remain."</p>'
+      + '<p>Scrambling backward, White Bushman’s heel catches Joppie — standing on his hind legs against the pedestal, investigating whether the lamp itself is food — and down he goes again, throwing both arms out to catch himself against the pedestal, which was not, it turns out, load-bearing.</p>'
+      + '<p>"I wish I hadn’t grabbed that pedestal—" he says, flat on his back, staring straight up.</p>'
+      + '<p>"Granted," says the djinn, and snaps again, and the pedestal un-falls, catching two of White Bushman’s fingers on the way back with a crunch that makes him make a noise Joppie has never heard him make before.</p>'
+      + '<p>"THAT’S TWO," the djinn says, almost sounding like he’s starting to enjoy this.</p>'
+      + '<p>Where the pedestal wrenched free of the floor and slammed back into place, a section of stone beside it has sheared clean away — and underneath, nested in a spiral of carved feathers, sits an egg the size of a wine barrel, shell the mottled grey-green of old jade, hairline-cracked and humming very faintly, in a register that has nothing to do with djinn or lamps at all.</p>'
+      + '<p>Not from anything White Bushman did — not today, anyway. The same pedestal has wrenched free the same way, in the same spot, forty-six times before, and forty-six times the loop smoothed the stone back into place right along with everything else it erased. But the smoke hadn’t settled all the way down this time. Neither, it turned out, had the crack.</p>'
+      + '<p class="page-whisper">— somewhere in that ten-thousand-year sleep, a thing that had once worn the sky like a coat opened one eye, and did not go back to sleep afterward —</p>'
+      + '<p>Joppie went very, very still. He had watched White Bushman waste these exact two wishes forty-six times running. But the crack had never once survived the reset before now. He climbs fast onto the lip of it, planting his tiny fedora-crowned self between White Bushman and the widening crack.</p>'
+      + '</div>'
+      + consolePrompt('what does he do?', [
+          {to:'ending_good', icon:'trust', label:'Trust Joppie. Stay back and let him do — whatever this is.'},
+          {to:'climax_interfere', icon:'grab', label:'Old habit. Grab for the lamp again before Joppie can finish.'}
+        ]);
+    },
+
+    climax_interfere: function(){ return folio('climax_interfere')
+      + '<p class="page-eyebrow">The Chamber</p>'
+      + '<h2 class="page-title">Old Habit</h2>'
+      + '<div class="page-plate">' + CHAMBER_EGG_SVG + '</div>'
+      + '<div class="page-body">'
+      + '<p>White Bushman’s hand shot toward the lamp — old instinct, the same one that had gotten him into forty-six doorways in the first place — before he’d even finished the thought that maybe, just this once, grabbing wasn’t the move.</p>'
+      + (difficulty === 'nightmare'
+        ? '<p>His fingers closed on brass at exactly the wrong moment — precisely early enough to matter. The djinn’s ancient, cracking composure snapped back into its ten-thousand-year shape, offense flooding back into a face that had almost, almost let something new in.</p><p>"THREE WISHES," it boomed again, flat, resumed, unmoved, "AS THE RULES REQUIRE — AND NO OTHERS."</p><p>The egg, mid-crack, sealed itself back into silence, offended into stillness. And White Bushman, standing far too close to a chamber wall never built to hold this much disturbed air at once, had exactly enough time to register the ceiling’s opinion on the matter before it registered his.</p>'
+        : '<p>His fingers closed on brass at the exact moment Joppie’s smile finished landing — and it was enough. Not a catastrophe, not this time; just an old habit reasserting itself half a second too early, closing a door that had only just started to open. Whatever had almost cracked in that ancient, folded-armed posture folded itself quietly back into ten thousand years of practiced indifference.</p><p>"Oh. Again?" the djinn said, without much surprise. "See you in eleven seconds, then."</p>')
+      + '</div>'
+      + (difficulty === 'nightmare'
+        ? '<p class="game-over-line">GAME OVER</p>'
+          + '<div class="page-body">'
+          + '<p>White Bushman did not get an eleven-second countdown this time. He didn’t get anything this time.</p>'
+          + '<p>Joppie sat very still in the rubble for a long moment, pacifier forgotten in the dust beside him, and did the only thing he had ever known how to do when something went wrong that a smile couldn’t fix.</p>'
+          + '<p>He looked up — at you, specifically, the only one left who could do anything about any of this — and asked, in a small, entirely serious voice:</p>'
+          + '<p style="text-align:center; font-family:\'Cormorant Garamond\',serif; font-style:italic; font-size:1.2rem; color:var(--gold); margin-top:1em;">"Wanna try again?"</p>'
+          + '</div>'
+          + consolePrompt('the loop is waiting', [{to:'title', action:'restart', icon:'loop', label:'Try again.'}])
+        : difficulty === 'easy'
+          ? consolePrompt('the loop is feeling generous', [{to:'easy_correction', icon:'continue', label:'Continue.'}])
+          : '<p class="page-whisper"><em>Eleven seconds.</em></p>'
+            + restartLink('loop forty-seven resets, same as the other forty-six'));
+    },
+
+    easy_correction: function(){ return folio('easy_correction')
+      + '<p class="page-eyebrow">The Chamber</p>'
+      + '<h2 class="page-title">You Should Have Let Joppie Choose</h2>'
+      + '<div class="page-plate">' + FORBIDDEN_SVG + '</div>'
+      + '<div class="page-body">'
+      + '<p>For half a second, old habit very nearly cost them everything — but the loop, on this setting, has no patience for old habits winning. Something unwinds, quietly, without ceremony.</p>'
+      + '<p>White Bushman’s hand is back at his side. Joppie’s smile is still finishing, exactly where it left off.</p>'
+      + '<p>"You should have chosen the other option," a voice says — not booming, this time. Almost gentle. "Let Joppie choose."</p>'
+      + '<p>So: let him.</p>'
+      + '</div>'
+      + consolePrompt('the story goes on', [{to:'ending_good', icon:'continue', label:'Continue.'}]);
+    },
+
+    ending_good: function(){ return folio('ending_good')
+      + '<p class="page-eyebrow">The Chamber</p>'
+      + '<h2 class="page-title">Whatever That Was</h2>'
+      + '<div class="page-plate">' + CHAMBER_HATCH_SVG + '</div>'
+      + '<div class="page-body">'
+      + '<p>Joppie turned to face ten feet of ancient, weary, endlessly repeating smoke — and did the only thing he had ever been able to do, the only thing he had ever needed to do, in forty-six loops and however many thousand years of granted wishes before that.</p>'
+      + '<p>He smiled.</p>'
+      + '<p>Not a trick. Not a spell. The same small, real, entirely untired smile he gave White Bushman every single morning of every single loop, whether or not the man in front of him remembered yesterday, whether or not there had even been a yesterday left to remember.</p>'
+      + '<p>The djinn had granted eleven thousand, four hundred and two wishes in a very long unlife spent listening to selfish men ask for gold, or youth, or one more day. He had watched exactly one small, uncomprehending, mohawked creature in a crooked fedora smile at him like the sky splitting open was a mildly interesting Tuesday — forty-six times running — and never once, in any of them, had anyone thanked him for any of it.</p>'
+      + '<p>Something in that ancient, folded-armed posture did not so much flicker as <em>crack</em>, in roughly the same place, and at roughly the same moment, as the egg.</p>'
+      + '<p>"GRANTED," the djinn said, to no one, to nothing, to a wish that had never technically been made. "WHATEVER THAT WAS."</p>'
+      + '</div>'
+      + '<div class="end-mark"><span class="glyph">❦</span>Loop Forty-Seven did not reset.<br>End of Chapter One — Ouroboros continues</div>'
+      + restartLink('the loop is quiet, for now');
+    }
+  };
+
+  window.oroAct = function(action){
+    if (action === 'easy') difficulty = 'easy';
+    else if (action === 'normal') difficulty = 'normal';
+    else if (action === 'nightmare') difficulty = 'nightmare';
+    else if (action === 'restart'){ difficulty = null; visited = {}; }
+  };
+
+  function render(){
+    var id = (location.hash || '#title').slice(1);
+    if (!scenes[id]) id = 'title';
+    document.getElementById('app').innerHTML = scenes[id]();
+    visited[id] = true;
+    window.scrollTo({top: document.getElementById('storySection').offsetTop - 20, behavior: (id === 'title' ? 'auto' : 'smooth')});
+  }
+
+  window.addEventListener('hashchange', render);
+  document.getElementById('restartBtn').addEventListener('click', function(){
+    difficulty = null; visited = {};
+    if (location.hash === '#title' || location.hash === ''){ render(); }
+    else { location.hash = 'title'; }
+    document.getElementById('storySection').scrollIntoView({behavior:'smooth'});
+  });
+  document.getElementById('themeBtn').addEventListener('click', function(){
+    var r = document.documentElement;
+    var cur = r.getAttribute('data-theme');
+    if (cur === 'dark'){ r.setAttribute('data-theme', 'light'); }
+    else if (cur === 'light'){ r.removeAttribute('data-theme'); }
+    else { r.setAttribute('data-theme', 'dark'); }
+  });
+
+  render();
+})();
+</script>
+
+</body></html>
