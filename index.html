@@ -790,9 +790,8 @@
   document.getElementById('themeBtn').addEventListener('click', function(){
     var r = document.documentElement;
     var cur = r.getAttribute('data-theme');
-    if (cur === 'dark'){ r.setAttribute('data-theme', 'light'); }
-    else if (cur === 'light'){ r.removeAttribute('data-theme'); }
-    else { r.setAttribute('data-theme', 'dark'); }
+    var effectiveDark = cur === 'dark' || (cur !== 'light' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+    r.setAttribute('data-theme', effectiveDark ? 'light' : 'dark');
   });
 
   render(false);
