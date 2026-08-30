@@ -768,18 +768,20 @@
     else if (action === 'restart'){ difficulty = null; visited = {}; }
   };
 
-  function render(){
+  function render(scroll){
     var id = (location.hash || '#title').slice(1);
     if (!scenes[id]) id = 'title';
     document.getElementById('app').innerHTML = scenes[id]();
     visited[id] = true;
-    window.scrollTo({top: document.getElementById('storySection').offsetTop - 20, behavior: (id === 'title' ? 'auto' : 'smooth')});
+    if (scroll){
+      window.scrollTo({top: document.getElementById('storySection').offsetTop - 20, behavior: (id === 'title' ? 'auto' : 'smooth')});
+    }
   }
 
-  window.addEventListener('hashchange', render);
+  window.addEventListener('hashchange', function(){ render(true); });
   document.getElementById('restartBtn').addEventListener('click', function(){
     difficulty = null; visited = {};
-    if (location.hash === '#title' || location.hash === ''){ render(); }
+    if (location.hash === '#title' || location.hash === ''){ render(true); }
     else { location.hash = 'title'; }
     document.getElementById('storySection').scrollIntoView({behavior:'smooth'});
   });
@@ -791,7 +793,7 @@
     else { r.setAttribute('data-theme', 'dark'); }
   });
 
-  render();
+  render(false);
 })();
 </script>
 
